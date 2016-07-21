@@ -64,6 +64,7 @@
           }
         
         NSLog(@"location:%@", location);
+        NSLog(@"regeocode:%@",regeocode.description);
         
         if (regeocode)
         {
