@@ -11,8 +11,11 @@
 
 @class MyCity;
 @interface MyCityDAO : NSObject{
-    FMDatabase *db;
+    
 }
+@property (nonatomic, readwrite ,strong) FMDatabase *db;
+
+- (void)updatedb;
 /**
  通过城市ID查找
  */

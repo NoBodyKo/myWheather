@@ -9,20 +9,21 @@
 #import "MyCityDAO.h"
 #import "MyProvince.h"
 #import "MyCity.h"
+#import "ChineseToPinyin.h"
 @implementation MyCityDAO
 
 -(instancetype) init{
     if (self = [super init]) {
-        db = [MyDbUtil createDBWithFilename:@"province.db"];
+        _db = [MyDbUtil createDBWithFilename:@"province.db"];
         
-        [db open];
+        [_db open];
     }
     return self;
 }
 
 -(MyCity *) findByCityId:(NSString *) cityId{
     MyCity *city = [[MyCity alloc] init];
-    FMResultSet *rs = [db executeQuery:@"select * from tb_city where cityID=?",cityId];
+    FMResultSet *rs = [_db executeQuery:@"select * from tb_city where cityID=?",cityId];
     while ([rs next]) {
         city.cityID = [rs stringForColumn:@"cityID"];
         city.cityName = [rs stringForColumn:@"cityName"];
@@ -35,7 +36,7 @@
 
 -(NSArray *) findByCityName:(NSString *) cityName{
     NSMutableArray *mArray = [NSMutableArray array];
-    FMResultSet *rs = [db executeQuery:@"select * from tb_city where cityName=?",cityName];
+    FMResultSet *rs = [_db executeQuery:@"select * from tb_city where cityName=?",cityName];
     while ([rs next]) {
         MyCity *city = [[MyCity alloc] init];
         city.cityID = [rs stringForColumn:@"cityID"];
@@ -48,7 +49,7 @@
 
 -(NSArray *) findAllByProName:(NSString *) proNameStr{
     NSMutableArray *mArray = [NSMutableArray array];
-    FMResultSet *rs = [db executeQuery:@"select * from tb_city where proName=?",proNameStr];
+    FMResultSet *rs = [_db executeQuery:@"select * from tb_city where proName=?",proNameStr];
     while ([rs next]) {
         MyCity *city = [[MyCity alloc] init];
         city.cityID = [rs stringForColumn:@"cityID"];
@@ -63,7 +64,7 @@
     NSString *cityID = nil;
     NSString *sqlStr = [NSString stringWithFormat:@"select * from tb_city where cityName='%@' and proName='%@'",cityName,proName];
    // FMResultSet *rs = [db executeQuery:@"select * from tb_city where cityName=? and proName=?",cityName,proName];
-    FMResultSet *rs = [db executeQuery:sqlStr];
+    FMResultSet *rs = [_db executeQuery:sqlStr];
     while ([rs next]) {
         
         cityID = [rs stringForColumn:@"cityID"];
@@ -73,10 +74,24 @@
     return cityID;
 
 }
+- (void)updatedb{
+    NSMutableArray *cityNameArray = [NSMutableArray array];
+    
+    NSString *sqlStr = @"select cityName from tb_city ";
+    FMResultSet *rs = [_db executeQuery:sqlStr];
+    while ([rs next]) {
+        [cityNameArray addObject:[rs stringForColumn:@"cityName"]];
+    }
+    for (int i = 0; i < cityNameArray.count; i++) {
+        NSString *str = [NSString stringWithFormat:@"update tb_city set keys='%@' where cityName='%@'",[[[ChineseToPinyin changeToPinyinString:cityNameArray[i]] substringToIndex:1] uppercaseString],cityNameArray[i]];
+        BOOL isSuceess = [_db executeUpdate:str];
+        NSLog(@"%d",isSuceess);
+    }
+}
 -(void) dealloc{
-    if (db) {
-        [db close];
-        db = nil;
+    if (_db) {
+        [_db close];
+        _db = nil;
     }
 }
 @end

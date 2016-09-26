@@ -2,6 +2,7 @@
 
 NSString *FindLetter(int nCode) {
 	NSString *strValue = @"";
+    NSLog(@"%d",nCode);
 	switch(nCode) {
 		case 6325:
 		case 6436:
@@ -4037,6 +4038,11 @@ NSString *FindLetter(int nCode) {
 				strValue = @"FU";
 				break;
 			}
+            if(nCode >= 2433 && nCode <= 2434)
+            {
+                strValue = @"GA";
+                break;
+            }
 			if(nCode >= 2435 && nCode <= 2440)
 			{
 				strValue = @"GAI";
@@ -5839,7 +5845,13 @@ char pinyinFirstLetter(unsigned short hanzi) {
 	return [[NSString alloc] initWithString:strValue]
             ;
 }
++ (NSString *) changeToPinyinString:(NSString *)string{
+     NSMutableString * mStr = [NSMutableString stringWithString:string];
+    CFStringTransform((CFMutableStringRef)mStr, NULL, kCFStringTransformMandarinLatin, NO);
+     CFStringTransform((CFMutableStringRef)mStr, NULL, kCFStringTransformStripCombiningMarks, NO);
+    return mStr;
 
+}
 + (char) sortSectionTitle:(NSString *)string {
 	int cLetter = 0;
 	if( !string || 0 == [string length] )
